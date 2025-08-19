@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EV & BaaS Customer Insights — Interactive Slide Survey</title>
+  <link rel="stylesheet" href="survey.css?v=6" />
+</head>
+<body>
+  <div class="app" id="app">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>EV & Battery-as-a-Service (BaaS) — Insights Survey</h1>
+          <div class="subtitle">Presentation-style, adaptive questionnaire. Estimated time: 5–7 minutes.</div>
+        </div>
+      </div>
+      <div class="pill" id="stepPill">Slide 1 / 1</div>
+    </header>
+
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+
+    <main class="slide" id="slide"></main>
+
+    <div class="controls">
+      <div class="left">
+        <span class="tag" id="requirementTag">Required</span>
+        <span id="validationMsg" class="error" role="status" aria-live="polite"></span>
+      </div>
+      <button class="btn" id="backBtn">◀ Back</button>
+      <button class="btn primary" id="nextBtn">Next ▶</button>
+    </div>
+
+    <footer>
+      <div>Tip: use ← → or Space/Enter to navigate. All data stored locally until you submit.</div>
+      <div>v0.1 • Single-file prototype</div>
+    </footer>
+  </div>
+
+  <!-- Keep the script at the end so DOM is ready -->
+  <script src="survey.js?v=5"></script>
+</body>
+</html>
