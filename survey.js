@@ -707,36 +707,36 @@ const components = {
         <p class="subtitle">${s.subtitle || ""}</p>
       </div>
 
-      <!-- Top row: options (2x2) + chart -->
-      <div class="subgrid twoCols">
-        <div>
-          <div class="optgrid two" role="radiogroup" aria-label="${s.title}">
-            ${s.options
-              .map((opt) => {
-                const checked = selected === opt ? "checked" : "";
-                return `<label class="cardopt"><input type="radio" name="${s.id}" value="${opt}" ${checked}/> ${opt}</label>`;
-              })
-              .join("")}
-          </div>
-        </div>
-        <div class="media"><canvas id="${
-          s.id
-        }_chart" width="700" height="360"></canvas></div>
-      </div>
-
-      <!-- Second row: monthly usage under options (left) and Home charging full-width below -->
+        <!-- Second row: monthly usage under options (left) and Home charging full-width below -->
       <div class="subgrid twoCols">
         <div class="infocard" id="${
           s.id
         }_assump" style="grid-column:1/2;"></div>
+        <div class="media"><canvas id="${
+          s.id
+        }_chart" width="700" height="360"></canvas></div>
         <div class="spacer"></div>
       </div>
-       <!-- <div class="infocard fullwidth" id="${s.id}_compare"></div> -->
+
+      <!-- <div class="infocard fullwidth" id="${s.id}_compare"></div> -->
 
       <div class="planGrid fullwidth" id="${s.id}_grid">
         <div class="infocard" id="${s.id}_lite"></div>
         <div class="infocard" id="${s.id}_basic"></div>
         <div class="infocard" id="${s.id}_adv"></div>
+      </div>
+
+
+      <!-- Top row: options (2x2) + chart -->
+      <div>
+        <div class="optgrid two" role="radiogroup" aria-label="${s.title}">
+          ${s.options
+            .map((opt) => {
+              const checked = selected === opt ? "checked" : "";
+              return `<label class="cardopt"><input type="radio" name="${s.id}" value="${opt}" ${checked}/> ${opt}</label>`;
+            })
+            .join("")}
+        </div>
       </div>
 
       
@@ -1181,7 +1181,7 @@ function defaultHelpBox() {
 const slides = [
   {
     id: "intro_contact",
-    required: false,
+    required: true,
     component: "introContact",
     title: "Let’s get you your goodies 🎁",
     subtitle:
@@ -1388,6 +1388,26 @@ const slides = [
     title: "Cost expectations",
     items: [
       {
+        key: "current_upfront",
+        label: "Current Budget for vehicle (on-road)",
+        min: 50000,
+        max: 300000,
+        step: 5000,
+        currency: true,
+        default: 120000,
+        required: true,
+      },
+      {
+        key: "current_monthly",
+        label: "Current monthly operating cost",
+        min: 200,
+        max: 20000,
+        step: 100,
+        currency: true,
+        default: 2500,
+        required: true,
+      },
+      {
         key: "upfront",
         label: "Budget for vehicle (on-road)",
         min: 30000,
@@ -1404,14 +1424,20 @@ const slides = [
         max: 6000,
         step: 100,
         currency: true,
-        default: 1200,
+        default: 700,
+        required: true,
       },
     ],
     help: {
-      upfront: `
+      current_upfront: `
         <div class="vstack">
-          <div class="pill">On-road budget</div>
-          <div class="note">Includes taxes, insurance, basic accessories. Use this to benchmark models later.</div>
+          <div class="pill">Current Vehicles On-road Price</div>
+          <div class="note">Includes taxes, insurance, basic accessories. Use this to compare later.</div>
+        </div>`,
+      current_monthly: `
+        <div class="vstack">
+          <div class="pill">Current monthly operating cost</div>
+          <div class="note">Fuel/energy + routine service.</div>
         </div>`,
       monthly: `
         <div class="vstack">
@@ -1526,6 +1552,18 @@ function render() {
   validateAndToggle(s);
 }
 
+function isEmpty(value) {
+  if (
+    value === undefined ||
+    value === null ||
+    value === "" ||
+    (Array.isArray(value) && value.length === 0)
+  ) {
+    return true;
+  }
+  return false;
+}
+
 // validation
 function validateAndToggle(s) {
   let ok = true;
@@ -1541,6 +1579,20 @@ function validateAndToggle(s) {
       ? ""
       : `Please allocate exactly ${requiredTotal} points (current total ${total}).`;
     return;
+  }
+
+  if (s.component === "introContact") {
+    if (
+      isEmpty(v.name) ||
+      v.phone.length != 10 ||
+      isEmpty(v.email) ||
+      isEmpty(v.age) ||
+      isEmpty(v.place) ||
+      isEmpty(v.consent)
+    ) {
+      ok = false;
+      console.log(v.phone.length);
+    }
   }
 
   if (s.required) {
