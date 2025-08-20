@@ -307,11 +307,12 @@ input[type=range] { --fill: 0%; }
 .tip:focus{ box-shadow: 0 0 0 2px rgba(110,231,255,.35); }
 .tip::after{
   content: attr(data-tip);
+  margin-left: 50px;
   position: absolute;
   bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  width: min(320px, 78vw);
+  width: min(320px, 70vw);
   padding: 10px 12px;
   background: #0b122a;
   color: var(--text);

@@ -553,6 +553,38 @@ const components = {
             })
             .join("")}
         </div>
+        <div class="vstack">
+        <h2 class="title" style="margin-top: 10px; margin-bottom: 10px;">${
+          s.subTitle || ""
+        }</h2>
+          ${
+            s.subItems
+              ?.map((m) => {
+                const v = prev[m.key] ?? m.default ?? m.min ?? 0;
+                return `<div class="range">
+              <label class="${m.required ? "req" : ""}">
+                <span>${m.label}${
+                  m.key === "wh_per_km"
+                    ? ' <span class="modechip" id="' +
+                      s.id +
+                      '_mode">City</span>'
+                    : ""
+                }</span>
+                <span><b id="${s.id}_${m.key}_val">${fmt(m, v)}</b></span>
+              </label>
+              <input aria-label="${m.label}" type="range" min="${m.min}" max="${
+                  m.max
+                }" step="${m.step || 1}" value="${v}" data-key="${m.key}"/>
+              ${
+                m.key === "wh_per_km"
+                  ? '<div class="rangelabels"><span>Eco</span><span>City</span><span>Sports</span><span>Blaze</span></div>'
+                  : ""
+              }
+            </div>`;
+              })
+              .join("") ?? ""
+          }
+        </div>
       </div>
       <div class="media">
         <div id="${s.id}_info" class="infobox" style="width:100%">
@@ -1262,21 +1294,21 @@ const slides = [
         default: 26,
         required: true,
       },
-      {
-        key: "longest_km",
-        label: "Longest typical one-way trip (per month)",
-        min: 0,
-        max: 300,
-        step: 5,
-        suffix: " km",
-        default: 60,
-      },
+      // {
+      //   key: "longest_km",
+      //   label: "Longest typical one-way trip (per month)",
+      //   min: 0,
+      //   max: 300,
+      //   step: 5,
+      //   suffix: " km",
+      //   default: 60,
+      // },
       {
         key: "wh_per_km",
         label: "Typical energy use (consumption)",
-        min: 21.1,
-        max: 51.4,
-        step: 0.1,
+        min: 21,
+        max: 45,
+        step: 8,
         suffix: " Wh/km",
         default: 32,
         required: true,
@@ -1385,28 +1417,9 @@ const slides = [
     id: "cost",
     required: true,
     component: "ranges",
-    title: "Cost expectations",
+    subTitle: "Current Vehicle Cost",
+    title: "Cost Expectation",
     items: [
-      {
-        key: "current_upfront",
-        label: "Current Budget for vehicle (on-road)",
-        min: 50000,
-        max: 300000,
-        step: 5000,
-        currency: true,
-        default: 120000,
-        required: true,
-      },
-      {
-        key: "current_monthly",
-        label: "Current monthly operating cost",
-        min: 200,
-        max: 20000,
-        step: 100,
-        currency: true,
-        default: 2500,
-        required: true,
-      },
       {
         key: "upfront",
         label: "Budget for vehicle (on-road)",
@@ -1428,6 +1441,29 @@ const slides = [
         required: true,
       },
     ],
+
+    subItems: [
+      {
+        key: "current_upfront",
+        label: "Current vehicle budget (on-road)",
+        min: 50000,
+        max: 300000,
+        step: 5000,
+        currency: true,
+        default: 120000,
+        required: true,
+      },
+      {
+        key: "current_monthly",
+        label: "Current monthly operating cost",
+        min: 200,
+        max: 20000,
+        step: 100,
+        currency: true,
+        default: 2500,
+        required: true,
+      },
+    ],
     help: {
       current_upfront: `
         <div class="vstack">
@@ -1443,6 +1479,11 @@ const slides = [
         <div class="vstack">
           <div class="pill">Monthly operating cost</div>
           <div class="note">Fuel/energy + routine service. For EVs: mostly energy + occasional wear items.</div>
+        </div>`,
+      upfront: `
+        <div class="vstack">
+          <div class="pill">Vehicles On-road Price</div>
+          <div class="note">Includes taxes, insurance, basic accessories. Use this to compare later.</div>
         </div>`,
     },
     infoDefaultHTML: defaultHelpBox(),
@@ -1588,7 +1629,7 @@ function validateAndToggle(s) {
       isEmpty(v.email) ||
       isEmpty(v.age) ||
       isEmpty(v.place) ||
-      isEmpty(v.consent)
+      !v.consent
     ) {
       ok = false;
       console.log(v.phone.length);
@@ -1640,10 +1681,11 @@ document.addEventListener("keydown", (e) => {
 });
 
 const CONFIG = {
-    SHEETS_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyBDsRzhUEbFPd2yGCECccK8XSW-BTs_S0vzuRo-DOw-QuxtcRS5ntYvZ1m_pv2tJ8KpA/exec', // e.g. https://script.google.com/macros/s/AKfycb.../exec
-    API_KEY: '',  // Optional: only if REQUIRE_TOKEN=true on the server
-    SUBMIT_TIMEOUT_MS: 12000
-  };
+  SHEETS_WEBAPP_URL:
+    "https://script.google.com/macros/s/AKfycbyBDsRzhUEbFPd2yGCECccK8XSW-BTs_S0vzuRo-DOw-QuxtcRS5ntYvZ1m_pv2tJ8KpA/exec", // e.g. https://script.google.com/macros/s/AKfycb.../exec
+  API_KEY: "", // Optional: only if REQUIRE_TOKEN=true on the server
+  SUBMIT_TIMEOUT_MS: 12000,
+};
 
 // submit (hook to Apps Script later)
 async function submit() {
@@ -1665,24 +1707,23 @@ async function submit() {
 
   try {
     const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids preflight
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // avoids preflight
       body: JSON.stringify(payload),
-      signal: controller.signal
+      signal: controller.signal,
     });
     clearTimeout(t);
 
     // You can read JSON normally (no-cors NOT used)
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data = await res.json();
-    console.log('Saved to sheet:', data);
+    console.log("Saved to sheet:", data);
     return data;
   } catch (err) {
     clearTimeout(t);
-    console.error('Upload failed:', err);
+    console.error("Upload failed:", err);
     throw err;
   }
-
 }
 
 // default help box
