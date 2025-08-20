@@ -297,6 +297,16 @@ const components = {
           <label>Age <input type="number" min="12" max="100" id="${
             s.id
           }_age" value="${prev.age || ""}"/></label>
+          <label>Vehicle Number <input type="text" id="${
+            s.id
+          }_vehicle_number" value="${
+      prev.vehicleNumber || ""
+    }" placeholder="KA 01 EC 1999"/></label>
+          <label>Make / Model <input type="text" id="${
+            s.id
+          }_vehicle_make" value="${
+      prev.vehicleModel || ""
+    }" placeholder="Activa / Access / Dio"/></label>
           <label>City / Area <input type="text" id="${s.id}_place" value="${
       prev.place || ""
     }" placeholder="e.g., Indiranagar, Bengaluru"/></label>
@@ -312,6 +322,8 @@ const components = {
         name: $(`#${s.id}_name`, div).value.trim(),
         phone: $(`#${s.id}_phone`, div).value.trim(),
         email: $(`#${s.id}_email`, div).value.trim(),
+        vehicleNumber: $(`#${s.id}_vehicle_number`, div).value.trim(),
+        vehicleModel: $(`#${s.id}_vehicle_make`, div).value.trim(),
         age: Number($(`#${s.id}_age`, div).value || ""),
         place: $(`#${s.id}_place`, div).value.trim(),
         consent: $(`#${s.id}_consent`, div).checked,
@@ -1417,7 +1429,7 @@ const slides = [
     id: "cost",
     required: true,
     component: "ranges",
-    subTitle: "Current Vehicle Cost",
+    subTitle: "Current Vehicle Cost (Petrol)",
     title: "Cost Expectation",
     items: [
       {
@@ -1469,6 +1481,8 @@ const slides = [
         <div class="vstack">
           <div class="pill">Current Vehicles On-road Price</div>
           <div class="note">Includes taxes, insurance, basic accessories. Use this to compare later.</div>
+          <div class="note">Honda Activa 125       ₹1,19,980.</div>
+          <div class="note">Suzuki Access 125      ₹1,05,232.</div>
         </div>`,
       current_monthly: `
         <div class="vstack">
@@ -1484,6 +1498,12 @@ const slides = [
         <div class="vstack">
           <div class="pill">Vehicles On-road Price</div>
           <div class="note">Includes taxes, insurance, basic accessories. Use this to compare later.</div>
+          <div class="note">Ather 450X Apex        ₹1,92,880.</div>
+          <div class="note">Ola S1 Pro Gen 2       ₹1,40,376.</div>
+          <div class="note">TVS iQube S (3.5 kWh)  ₹1,29,940.</div>
+          <div class="note">Bajaj Chetak           ₹1,27,108.</div>
+          <div class="note">Hero Vida V1 Pro       ₹1,49,269.</div>
+          <div class="note">River Indie            ₹1,52,407.</div>
         </div>`,
     },
     infoDefaultHTML: defaultHelpBox(),
@@ -1629,10 +1649,11 @@ function validateAndToggle(s) {
       isEmpty(v.email) ||
       isEmpty(v.age) ||
       isEmpty(v.place) ||
+      isEmpty(v.vehicleNumber) ||
+      isEmpty(v.vehicleModel) ||
       !v.consent
     ) {
       ok = false;
-      console.log(v.phone.length);
     }
   }
 
