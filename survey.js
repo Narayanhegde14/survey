@@ -1639,6 +1639,12 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+const CONFIG = {
+    SHEETS_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyBDsRzhUEbFPd2yGCECccK8XSW-BTs_S0vzuRo-DOw-QuxtcRS5ntYvZ1m_pv2tJ8KpA/exec', // e.g. https://script.google.com/macros/s/AKfycb.../exec
+    API_KEY: '',  // Optional: only if REQUIRE_TOKEN=true on the server
+    SUBMIT_TIMEOUT_MS: 12000
+  };
+
 // submit (hook to Apps Script later)
 async function submit() {
   const payload = buildPayload();
@@ -1648,7 +1654,35 @@ async function submit() {
   //   if(!res.ok) throw new Error(await res.text());
   //   toast('Submitted successfully');
   // } catch(err){ toast('Submit failed: '+ err.message); }
-  download("ev-baas-survey.json", JSON.stringify(payload, null, 2));
+  // download("ev-baas-survey.json", JSON.stringify(payload, null, 2));
+
+  const url = CONFIG.API_KEY
+    ? `${CONFIG.SHEETS_WEBAPP_URL}?apiKey=${encodeURIComponent(CONFIG.API_KEY)}`
+    : CONFIG.SHEETS_WEBAPP_URL;
+
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), CONFIG.SUBMIT_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids preflight
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(t);
+
+    // You can read JSON normally (no-cors NOT used)
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data = await res.json();
+    console.log('Saved to sheet:', data);
+    return data;
+  } catch (err) {
+    clearTimeout(t);
+    console.error('Upload failed:', err);
+    throw err;
+  }
+
 }
 
 // default help box
