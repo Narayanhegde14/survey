@@ -1167,30 +1167,43 @@ const components = {
     const div = document.createElement("div");
     div.className = "content";
     const payload = buildPayload();
+
+
     div.innerHTML = `
       <div class="vstack">
         <h2 class="title">${s.title}</h2>
         <p class="subtitle">${s.subtitle || ""}</p>
         <div class="summary">
-          <div><span class="tag">Vehicle</span> <b>${
-            payload.current_vehicle || "—"
-          }</b></div>
-          <div><span class="tag">Daily Commute</span> ${
-            payload.commute?.daily_km ?? "—"
-          } km • Longest ${payload.commute?.longest_km ?? "—"} km</div>
-          <div><span class="tag">Subscription Appeal</span> ${
-            payload.subscription_appeal || "—"
-          }</div>
-          <details><summary>Full JSON (click to expand)</summary><pre id="jsonOut"></pre></details>
           <div style="display:flex; gap:10px; flex-wrap: wrap;">
-            <button class="btn" id="downloadBtn">Download JSON</button>
-            <button class="btn" id="copyBtn">Copy JSON</button>
             <button class="btn primary" id="submitBtn">Submit</button>
           </div>
         </div>
       </div>
-      <div class="media"><canvas id="reviewChart" width="520" height="320"></canvas></div>
     `;
+    // div.innerHTML = `
+    //   <div class="vstack">
+    //     <h2 class="title">${s.title}</h2>
+    //     <p class="subtitle">${s.subtitle || ""}</p>
+    //     <div class="summary">
+    //       <div><span class="tag">Vehicle</span> <b>${
+    //         payload.current_vehicle || "—"
+    //       }</b></div>
+    //       <div><span class="tag">Daily Commute</span> ${
+    //         payload.commute?.daily_km ?? "—"
+    //       } km • Longest ${payload.commute?.longest_km ?? "—"} km</div>
+    //       <div><span class="tag">Subscription Appeal</span> ${
+    //         payload.subscription_appeal || "—"
+    //       }</div>
+    //       <details><summary>Full JSON (click to expand)</summary><pre id="jsonOut"></pre></details>
+    //       <div style="display:flex; gap:10px; flex-wrap: wrap;">
+    //         <button class="btn" id="downloadBtn">Download JSON</button>
+    //         <button class="btn" id="copyBtn">Copy JSON</button>
+    //         <button class="btn primary" id="submitBtn">Submit</button>
+    //       </div>
+    //     </div>
+    //   </div>
+    //   <div class="media"><canvas id="reviewChart" width="520" height="320"></canvas></div>
+    // `;
     setTimeout(() => {
       $("#jsonOut", div).textContent = JSON.stringify(payload, null, 2);
       const pr = payload.priorities || {};
@@ -1608,9 +1621,12 @@ function render() {
   const fragment = comp(s);
   slideEl.appendChild(fragment);
 
+  
   backBtn.disabled = idx === 0;
   nextBtn.textContent = idx === flow.length - 1 ? "Finish ✅" : "Next ▶";
+  
   validateAndToggle(s);
+  
 }
 
 function isEmpty(value) {
