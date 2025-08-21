@@ -609,6 +609,9 @@ const components = {
     s.items.forEach((m) => {
       if (data[m.key] === undefined) data[m.key] = m.default ?? m.min ?? 0;
     });
+    s.subItems?.forEach((m) => {
+      if (data[m.key] === undefined) data[m.key] = m.default ?? m.min ?? 0;
+    });
     setVal(s.id, data);
     setTimeout(() => {
       s.items.forEach((m) => {
@@ -1168,18 +1171,27 @@ const components = {
     div.className = "content";
     const payload = buildPayload();
 
-
     div.innerHTML = `
-      <div class="vstack">
-        <h2 class="title">${s.title}</h2>
-        <p class="subtitle">${s.subtitle || ""}</p>
-        <div class="summary">
-          <div style="display:flex; gap:10px; flex-wrap: wrap;">
-            <button class="btn primary" id="submitBtn">Submit</button>
+        <div class="vstack">
+          <h2 class="title">${s.title}</h2>
+          <p class="subtitle">${s.subtitle || ""}</p>
+          <div class="summary">
+            <div style="display:flex; gap:10px; flex-wrap: wrap;">
+              <button class="btn primary" id="submitBtn">Submit</button>
+            </div>
+          </div>
+          <div id="loading-screen">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading, please wait...</div>
+          </div>
+          <div class="popup" id="popup">
+            <div class="popup-content">
+              <h3>✅ Thank you for submitting the survey!</h3>
+              <button id="resetBtn">Submit another Survey</button>
+            </div>
           </div>
         </div>
-      </div>
-    `;
+      `;
     // div.innerHTML = `
     //   <div class="vstack">
     //     <h2 class="title">${s.title}</h2>
@@ -1205,23 +1217,76 @@ const components = {
     //   <div class="media"><canvas id="reviewChart" width="520" height="320"></canvas></div>
     // `;
     setTimeout(() => {
-      $("#jsonOut", div).textContent = JSON.stringify(payload, null, 2);
-      const pr = payload.priorities || {};
-      const labels = Object.keys(pr),
-        vals = Object.values(pr).map(Number);
-      if (labels.length) drawBarChart($("#reviewChart", div), labels, vals);
-      $("#downloadBtn", div).addEventListener("click", () =>
-        download("ev-baas-survey.json", JSON.stringify(payload, null, 2))
-      );
-      $("#copyBtn", div).addEventListener("click", async () => {
-        await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
-        toast("Copied to clipboard");
-      });
+      // $("#jsonOut", div).textContent = JSON.stringify(payload, null, 2);
+      // const pr = payload.priorities || {};
+      // const labels = Object.keys(pr),
+      //   vals = Object.values(pr).map(Number);
+      // if (labels.length) drawBarChart($("#reviewChart", div), labels, vals);
+      // $("#downloadBtn", div).addEventListener("click", () =>
+      //   download("ev-baas-survey.json", JSON.stringify(payload, null, 2))
+      // );
+      // $("#copyBtn", div).addEventListener("click", async () => {
+      //   await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+      //   toast("Copied to clipboard");
+      // });
       $("#submitBtn", div).addEventListener("click", submit);
+      $("#resetBtn", div).addEventListener("click", reset_and_clear);
     }, 0);
     return div;
   },
 };
+
+function reset_and_clear() {
+  location.reload();
+  localStorage.clear();
+}
+
+//   review: (s) => {
+//     const div = document.createElement("div");
+//     div.className = "content";
+//     const payload = buildPayload();
+//     div.innerHTML = `
+//       <div class="vstack">
+//         <h2 class="title">${s.title}</h2>
+//         <p class="subtitle">${s.subtitle || ""}</p>
+//         <div class="summary">
+//           <div><span class="tag">Vehicle</span> <b>${
+//             payload.current_vehicle || "—"
+//           }</b></div>
+//           <div><span class="tag">Daily Commute</span> ${
+//             payload.commute?.daily_km ?? "—"
+//           } km • Longest ${payload.commute?.longest_km ?? "—"} km</div>
+//           <div><span class="tag">Subscription Appeal</span> ${
+//             payload.subscription_appeal || "—"
+//           }</div>
+//           <details><summary>Full JSON (click to expand)</summary><pre id="jsonOut"></pre></details>
+//           <div style="display:flex; gap:10px; flex-wrap: wrap;">
+//             <button class="btn" id="downloadBtn">Download JSON</button>
+//             <button class="btn" id="copyBtn">Copy JSON</button>
+//             <button class="btn primary" id="submitBtn">Submit</button>
+//           </div>
+//         </div>
+//       </div>
+//       <div class="media"><canvas id="reviewChart" width="520" height="320"></canvas></div>
+//     `;
+//     setTimeout(() => {
+//       $("#jsonOut", div).textContent = JSON.stringify(payload, null, 2);
+//       const pr = payload.priorities || {};
+//       const labels = Object.keys(pr),
+//         vals = Object.values(pr).map(Number);
+//       if (labels.length) drawBarChart($("#reviewChart", div), labels, vals);
+//       $("#downloadBtn", div).addEventListener("click", () =>
+//         download("ev-baas-survey.json", JSON.stringify(payload, null, 2))
+//       );
+//       $("#copyBtn", div).addEventListener("click", async () => {
+//         await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+//         toast("Copied to clipboard");
+//       });
+//       $("#submitBtn", div).addEventListener("click", submit);
+//     }, 0);
+//     return div;
+//   },
+// };
 
 function defaultHelpBox() {
   return `
@@ -1621,12 +1686,15 @@ function render() {
   const fragment = comp(s);
   slideEl.appendChild(fragment);
 
-  
   backBtn.disabled = idx === 0;
   nextBtn.textContent = idx === flow.length - 1 ? "Finish ✅" : "Next ▶";
-  
+  if (idx === flow.length - 1) {
+    nextBtn.style.display = "none";
+  } else {
+    nextBtn.style.display = "inline-block";
+  }
+
   validateAndToggle(s);
-  
 }
 
 function isEmpty(value) {
@@ -1743,6 +1811,7 @@ async function submit() {
   const t = setTimeout(() => controller.abort(), CONFIG.SUBMIT_TIMEOUT_MS);
 
   try {
+    document.getElementById("loading-screen").style.display = "flex";
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" }, // avoids preflight
@@ -1755,6 +1824,9 @@ async function submit() {
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data = await res.json();
     console.log("Saved to sheet:", data);
+    document.getElementById("loading-screen").style.display = "none";
+    const popup = document.getElementById("popup");
+    popup.style.display = "flex";
     return data;
   } catch (err) {
     clearTimeout(t);
