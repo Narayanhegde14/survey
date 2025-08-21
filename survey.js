@@ -1434,7 +1434,7 @@ const slides = [
     component: "fixedSumSliders",
     title: "What matters most to you?",
     subtitle:
-      "Distribute exactly 20 points (max 5 per slider). The chart updates live.",
+      "Distribute 20 points (max 5 per slider). The chart updates live.",
     total: 20,
     maxPer: 5,
     metrics: [
@@ -1727,11 +1727,11 @@ function validateAndToggle(s) {
     const obj = v && typeof v === "object" ? v : {};
     const total = Object.values(obj).reduce((a, b) => a + (Number(b) || 0), 0);
     const requiredTotal = s.total ?? 100;
-    const isOk = total === requiredTotal;
+    const isOk = total <= requiredTotal;
     nextBtn.disabled = !isOk;
     validationMsg.textContent = isOk
       ? ""
-      : `Please allocate exactly ${requiredTotal} points (current total ${total}).`;
+      : `Please allocate ${requiredTotal} points (current total ${total}).`;
     return;
   }
 
