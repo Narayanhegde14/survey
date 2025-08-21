@@ -1,4 +1,4 @@
-// survey.js — EV & BaaS interactive survey (with Honda plans)
+// survey.js — EV & BaaS interactive survey (with BaaS plans)
 
 // ------------------- tiny DOM helpers -------------------
 const $ = (sel, el = document) => el.querySelector(sel);
@@ -34,7 +34,7 @@ function setVal(id, v) {
 }
 
 // --------------------------------------------------------
-//  Energy economics + Honda subscription plans
+//  Energy economics + BaaS subscription plans
 // --------------------------------------------------------
 const ECON = {
   // Vehicle / energy model
@@ -46,7 +46,7 @@ const ECON = {
   WARRANTY_KM: 45000, // km per pack before replacement
   HORIZON_YEARS: 3, // comparison horizon
 
-  // Honda plans
+  // BaaS plans
   GST_RATE: 0, //0.18,
 
   LITE_FEE_EXGST: 678, // ₹/mo (ex-GST)
@@ -100,7 +100,7 @@ function computeUsage(ans = state) {
   };
 }
 
-// Cost if using the Honda Lite plan (includes 12 swaps; extra swaps billed)
+// Cost if using the BaaS Lite plan (includes 12 swaps; extra swaps billed)
 function calcLiteEconomics(ans = state) {
   const u = computeUsage(ans);
   // Included energy via cap (context): 30 kWh
@@ -737,15 +737,15 @@ const components = {
     return div;
   },
 
-  // Subscription appeal with Honda plan math + chart
+  // Subscription appeal with BaaS plan math + chart
 
-  // Subscription appeal with Honda plan math + chart (cleaned)
+  // Subscription appeal with BaaS plan math + chart (cleaned)
 
-  // Subscription appeal with Honda plan math + chart (full-width plans)
+  // Subscription appeal with BaaS plan math + chart (full-width plans)
 
-  // Subscription appeal with Honda plan math + chart (full-width plans + richer Basic/Advanced)
+  // Subscription appeal with BaaS plan math + chart (full-width plans + richer Basic/Advanced)
 
-  // Subscription appeal with Honda plan math + chart (full-width plans + richer all cards)
+  // Subscription appeal with BaaS plan math + chart (full-width plans + richer all cards)
 
   // Subscription appeal with context-based caps & overage (Lite in kWh; Basic/Adv overage ₹/kWh)
 
@@ -897,7 +897,7 @@ const components = {
       else liteRec = '<span class="status info">Advanced likely cheaper</span>';
 
       $(`#${s.id}_lite`, div).innerHTML = `
-        <div class="title-row">Honda <span class="tag">Lite</span></div>
+        <div class="title-row">BaaS <span class="tag">Lite</span></div>
         <div class="sub">Cap: ${ECON.LITE_KWH_CAP} kWh · Fee: ${fmtR(
         lite.feeIncl
       )}/mo</div>
@@ -925,7 +925,7 @@ const components = {
       }
 
       $(`#${s.id}_basic`, div).innerHTML = `
-        <div class="title-row">Honda <span class="tag">Basic</span></div>
+        <div class="title-row">BaaS <span class="tag">Basic</span></div>
         <div class="sub">Cap: ${ECON.BASIC_KWH_CAP} kWh · Fee: ${fmtR(
         ECON.BASIC_FEE
       )}/mo</div>
@@ -949,7 +949,7 @@ const components = {
       `;
 
       $(`#${s.id}_adv`, div).innerHTML = `
-        <div class="title-row">Honda <span class="tag">Advanced</span></div>
+        <div class="title-row">BaaS <span class="tag">Advanced</span></div>
         <div class="sub">Cap: ${ECON.ADV_KWH_CAP} kWh · Fee: ${fmtR(
         ECON.ADV_FEE
       )}/mo</div>
@@ -1618,7 +1618,7 @@ const slides = [
     component: "subscriptionAppeal",
     title: "How appealing is a monthly battery subscription?",
     subtitle:
-      "We compare Honda’s Lite plan (with extra swaps if you exceed 12/mo) vs owning the battery for 3 years.",
+      "We compare BaaS’s Lite plan (with extra swaps if you exceed 12/mo) vs owning the battery for 3 years.",
     options: [
       "Very appealing",
       "Somewhat appealing",
@@ -1651,7 +1651,7 @@ function buildPayload() {
     meta: {
       userAgent: navigator.userAgent,
       ts: new Date().toISOString(),
-      version: "split-0.4-honda",
+      version: "split-0.4-BaaS",
     },
   };
 }
