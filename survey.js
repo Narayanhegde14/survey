@@ -620,6 +620,13 @@ const components = {
         if (valEl) valEl.textContent = fmt(m, data[m.key]);
         if (rangeEl) rangeEl.value = data[m.key];
       });
+      s.subItems?.forEach((m) => {
+        console.log(m);
+        const valEl = $(`#${s.id}_${m.key}_val`, div);
+        const rangeEl = div.querySelector(`input[data-key="${m.key}"]`);
+        if (valEl) valEl.textContent = fmt(m, data[m.key]);
+        if (rangeEl) rangeEl.value = data[m.key];
+      });
       validateAndToggle(s);
     }, 0);
 
@@ -641,7 +648,9 @@ const components = {
     div.addEventListener("input", (e) => {
       if (e.target.matches("input[type=range]")) {
         const key = e.target.dataset.key;
-        const item = s.items.find((i) => i.key === key);
+        const item =
+          s.items.find((i) => i.key === key) ??
+          s.subItems.find((i) => i.key === key);
         data[key] = Number(e.target.value);
         $(`#${s.id}_${key}_val`, div).textContent = fmt(item, data[key]);
         setVal(s.id, data);
@@ -1920,27 +1929,27 @@ if (typeof components === "object") {
 }
 
 // --- injected: add Brand Trust slide before Review ---
-try {
-  const idxReview =
-    typeof slides !== "undefined"
-      ? Math.max(
-          0,
-          slides.findIndex((s) => s.id === "review")
-        )
-      : -1;
-  const insertAt =
-    idxReview >= 0 ? idxReview : Math.max(0, (slides?.length || 1) - 1);
-  slides.splice(insertAt, 0, {
-    id: "brand_trust",
-    required: false,
-    component: "brandStars",
-    title: "Brand trust (2W EV)",
-    subtitle: "Rate your perception of each brand (1–5, optional).",
-    brands: ["Ather", "Ola", "TVS", "Bajaj", "Hero", "Honda"],
-  });
-} catch (e) {
-  /* no-op */
-}
+// try {
+//   const idxReview =
+//     typeof slides !== "undefined"
+//       ? Math.max(
+//           0,
+//           slides.findIndex((s) => s.id === "review")
+//         )
+//       : -1;
+//   const insertAt =
+//     idxReview >= 0 ? idxReview : Math.max(0, (slides?.length || 1) - 1);
+//   slides.splice(insertAt, 0, {
+//     id: "brand_trust",
+//     required: false,
+//     component: "brandStars",
+//     title: "Brand trust (2W EV)",
+//     subtitle: "Rate your perception of each brand (1–5, optional).",
+//     brands: ["Ather", "Ola", "TVS", "Bajaj", "Hero", "Honda"],
+//   });
+// } catch (e) {
+//   /* no-op */
+// }
 
 // ===== Slide 9 layout auto-tag and grid placement =====
 function fixSlide9Layout() {
